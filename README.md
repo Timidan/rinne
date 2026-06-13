@@ -19,6 +19,19 @@
   <img alt="runtime" src="https://img.shields.io/badge/Node-20%2B-1d59f2">
 </p>
 
+<p align="center">
+  <a href="https://www.mantle.xyz" title="Mantle — the L2 Rinne guards"><img src="docs/assets/ext/mantle.png" height="44" alt="Mantle"></a>
+  &nbsp;&nbsp;&nbsp;
+  <a href="https://asksurf.ai" title="Surf — live market data"><img src="docs/assets/ext/surf.png" height="44" alt="Surf"></a>
+  &nbsp;&nbsp;&nbsp;
+  <a href="https://www.nansen.ai" title="Nansen — on-chain address risk"><img src="docs/assets/ext/nansen.png" height="44" alt="Nansen"></a>
+</p>
+
+<p align="center">
+  <sub>Built on <b>Mantle</b> · live market data from <b>Surf</b> · address risk from <b>Nansen</b><br/>
+  TypeScript · Node · React · Vite · Tailwind · Foundry/Solidity</sub>
+</p>
+
 ---
 
 Before an autonomous agent swaps, approves, or borrows on Mantle, it asks Rinne —
