@@ -1,16 +1,60 @@
-# Rinne
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/rinne-logo-dark.png">
+    <img src="docs/assets/rinne-logo.png" alt="Rinne" width="440">
+  </picture>
+</p>
 
-**A pre-execution safety guard for autonomous DeFi agents on Mantle.** Before an
-agent swaps, approves, or borrows, it asks Rinne — and gets back `proceed`,
-`block`, or `review`, backed by deterministic rules and live market + risk
-evidence. Rinne **never executes transactions and never takes a private key**;
-the agent broadcasts its own transaction after Rinne approves. Agents integrate
-voluntarily and obey `block`.
+<p align="center"><strong>A pre-execution safety guard for autonomous DeFi agents on Mantle.</strong></p>
 
-Mantle is a high-performance Ethereum L2, and autonomous agents transacting
-there need a guardrail that catches a catastrophic trade *before* it is signed —
-a zero-floor swap, an unlimited approval, a borrow into liquidation range. That
-is Rinne.
+<p align="center">
+  <a href="https://rinne.timidan.xyz/app"><b>Live dashboard</b></a> &nbsp;·&nbsp;
+  <a href="https://rinne.timidan.xyz/skill.md">Agent skill</a> &nbsp;·&nbsp;
+  <a href="https://sepolia.mantlescan.xyz/address/0xD6C9Bc635CaB482717B3aABB8842e2D1E762a05b">Mantle Sepolia contract</a>
+</p>
+
+<p align="center">
+  <img alt="license" src="https://img.shields.io/badge/license-MIT-181610">
+  <img alt="chain" src="https://img.shields.io/badge/Mantle-Sepolia-e8442e">
+  <img alt="runtime" src="https://img.shields.io/badge/Node-20%2B-1d59f2">
+</p>
+
+---
+
+Before an autonomous agent swaps, approves, or borrows on Mantle, it asks Rinne —
+and gets back `proceed`, `block`, or `review`, backed by deterministic rules and
+live market + risk evidence. Rinne **never executes transactions and never takes
+a private key**; the agent broadcasts its own transaction after Rinne approves.
+Agents integrate voluntarily and obey `block`.
+
+Mantle is a high-performance Ethereum L2, and agents transacting there need a
+guardrail that catches a catastrophic trade *before* it is signed — a zero-floor
+swap, an unlimited approval, a borrow into liquidation range. That is Rinne.
+
+```mermaid
+flowchart LR
+    A["DeFi agent"]:::agent
+    N["Normalizer<br/>(trust boundary)"]:::guard
+    RULES["Deterministic rules<br/>swap · approval · lending"]:::guard
+    GATE{"proceed /<br/>block / review"}:::gate
+    SURF[("Surf<br/>market price")]:::ext
+    NANSEN[("Nansen<br/>address risk")]:::ext
+    MANTLE[("Mantle")]:::chain
+
+    A -->|"1 · register once"| N
+    A -->|"2 · guard the planned action"| N
+    N --> RULES --> GATE
+    RULES -.->|"live evidence"| SURF
+    RULES -.->|"live evidence"| NANSEN
+    GATE -->|"verdict"| A
+    A -.->|"broadcasts only after proceed (own wallet)"| MANTLE
+
+    classDef agent fill:#ffffff,stroke:#181610,color:#181610;
+    classDef guard fill:#e8eefe,stroke:#1d59f2,color:#181610;
+    classDef gate fill:#ffffff,stroke:#e8442e,color:#181610,stroke-width:2px;
+    classDef ext fill:#f5f3ec,stroke:#5d5a4f,color:#181610;
+    classDef chain fill:#122a75,stroke:#122a75,color:#ffffff;
+```
 
 ### ▶ Try it live
 

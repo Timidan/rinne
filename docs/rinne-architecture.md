@@ -1,3 +1,10 @@
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/rinne-logo-dark.png">
+    <img src="assets/rinne-logo.png" alt="Rinne" width="300">
+  </picture>
+</p>
+
 # Rinne Architecture
 
 Rinne is a hosted DeFi agent guard for Mantle. An autonomous agent describes a
@@ -27,43 +34,51 @@ inspectable rules, then recorded so it can be re-derived and audited.
   **approval**, **lending** — on two chains: `mantle` (mainnet, chainId 5000)
   and `mantle-sepolia` (testnet, chainId 5003).
 
-## Core constraint: minimize reviews
+## Core constraint: fail toward review, never toward proceed
 
-`review` is a real cost: it interrupts an autonomous agent and asks a human to
-look. The rule engine is deliberately tuned to reserve `review` for genuine
-uncertainty — a soft limit crossed, or evidence that could not be verified —
-rather than firing it on every unknown. An unknown spender with no risk signal
-proceeds; absence of a risk label is not treated as evidence of danger.
+`block` and `review` are both safe outcomes; the only dangerous outcome is a
+wrong `proceed`. The rule engine is therefore conservative — when it cannot
+positively verify a counterparty or a figure, it returns `review` rather than
+`proceed`. An unrecognized spender or protocol (one that is neither
+operator-allowlisted nor positively labeled) is sent to review, because the
+absence of a risk label is not proof of safety: a brand-new malicious contract
+simply has no labels yet. `review` means "a human should look", never "we
+guessed".
 
 ## Request flow
 
 A complete integration is three steps, all over HTTP with JSON, no SDK
 required.
 
-```text
-1. install skill   GET  /skill.md
-                   (raw markdown; $RINNE_BASE_URL substituted with this origin)
-
-2. register        POST /v1/register-agent           (open, no auth)
-                   -> { agent, apiKey: "rinne_live_...", note }
-                      the plaintext key is shown ONCE
-
-3. guard           POST /v1/guard
-                   Authorization: Bearer rinne_live_...
-                   { schemaVersion, agentId, action, context?, metadata? }
-                   -> GuardDecision { gate: "proceed" | "block" | "review", ... }
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Agent
+    participant Rinne as Rinne guard
+    participant P as Surf / Nansen
+    Agent->>Rinne: GET /skill.md  (install the contract)
+    Agent->>Rinne: POST /v1/register-agent  (open, no auth)
+    Rinne-->>Agent: agent id + API key (shown once)
+    Agent->>Rinne: POST /v1/guard  (Bearer key, planned action)
+    Rinne->>P: fetch live evidence for this action
+    P-->>Rinne: market price / risk labels (or error)
+    Rinne-->>Agent: GuardDecision { gate: proceed | block | review }
+    Note over Agent: broadcasts its own transaction only after `proceed`
 ```
 
-Inside step 3, one guard call runs end to end:
+Inside step 3, one guard call runs end to end — a single pure pipeline:
 
-```text
-raw JSON body
-   -> normalizeGuardRequest        (trust boundary: validate, never throw)
-   -> gatherEvidence               (live Surf / Nansen for what the action needs)
-   -> evaluateGuardRules           (pure rules selected by action kind)
-   -> computeGate                  (critical fail -> block; warning/provider
-                                    error -> review; else proceed)
-   -> GuardDecision (content-hashed, persisted to the file store)
+```mermaid
+flowchart TD
+    BODY["raw JSON body"] --> NORM["normalizeGuardRequest<br/>trust boundary — validate, never throw"]
+    NORM --> EV["gatherEvidence<br/>live Surf / Nansen for what the action needs"]
+    EV --> RULES["evaluateGuardRules<br/>pure rules selected by action kind"]
+    RULES --> GATE["computeGate"]
+    GATE --> DEC["GuardDecision<br/>content-hashed (reportHash), persisted to the store"]
+    classDef step fill:#e8eefe,stroke:#1d59f2,color:#181610;
+    class NORM,EV,RULES,GATE step;
+    classDef io fill:#f5f3ec,stroke:#5d5a4f,color:#181610;
+    class BODY,DEC io;
 ```
 
 The orchestration lives in `runGuard` (`guard/guard-service.ts`): it gathers
@@ -115,13 +130,15 @@ Each rule returns a `GuardRuleResult` with a `status`
 
 | Rule | Severity | Fails when |
 |---|---|---|
-| `swap-min-received-required` | critical | no `minReceived` floor is declared |
-| `swap-slippage-limit` | critical | `maxSlippageBps` > 300 |
-| `swap-quote-freshness` | warning | quote timestamp is unparseable or older than 120s |
+| `swap-min-received-required` | critical | no `minReceived` floor is declared, or it is ≤ 0 |
+| `swap-slippage-limit` | critical / warning | `maxSlippageBps` > 300 (critical); neither a cap nor `expectedOut` declared (warning → review) |
+| `swap-floor-consistency` | critical | `minReceived` is below the minimum implied by `expectedOut` at the declared slippage — an economically meaningless floor |
+| `swap-quote-freshness` | warning | quote timestamp is unparseable, older than 120s, or dated in the future |
 | `swap-market-evidence` | warning | Surf market evidence is unavailable (status `error`) |
 
-The two hard gates are pure action math, so a dangerous swap blocks even when
-Surf is unreachable. The market-evidence rule turns a Surf failure into a
+The hard gates are pure action math — a positive floor, a floor consistent with
+the expected output, and a sane slippage cap — so a dangerous swap blocks even
+when Surf is unreachable. The market-evidence rule turns a Surf failure into a
 review signal; it never invents a price.
 
 ### Approval rules (`guard/rules/approval.ts`)
@@ -130,12 +147,13 @@ review signal; it never invents a price.
 |---|---|---|
 | `approval-no-unlimited` | critical | allowance is the max-uint sentinel or an effectively unlimited magnitude |
 | `approval-amount-limit` | warning | amount exceeds the operator's display threshold for the token |
-| `approval-spender-risk` | critical / warning | Nansen flags the spender high-risk (critical → block); Nansen unreachable (warning → review) |
+| `approval-spender-risk` | critical / warning | Nansen flags the spender high-risk (critical → block); the spender is unreachable, unrecognized, or unallowlisted (warning → review) |
 
-`approval-spender-risk` follows the minimize-reviews posture: an explicit
-high-risk label blocks, a provider error needs review, and an unknown spender
-with no risk signal proceeds (the Nansen evidence, if any, is still recorded).
-An operator-allowlisted spender short-circuits to pass.
+`approval-spender-risk` is conservative: an explicit high-risk label blocks; an
+operator-allowlisted spender short-circuits to pass; everything else — a
+provider error, **or** an unrecognized spender with no positive trust signal —
+is sent to review. The absence of a risk label is not treated as proof of
+safety (the Nansen evidence, if any, is still recorded on the decision).
 
 ### Lending rules (`guard/rules/lending.ts`)
 
@@ -143,12 +161,20 @@ An operator-allowlisted spender short-circuits to pass.
 |---|---|---|
 | `lending-health-factor-present` | warning | a risk-increasing op (borrow/withdraw) declares no `healthFactorAfter` |
 | `lending-health-factor-min` | critical | resulting health factor < 1.25 |
-| `lending-protocol-risk` | critical / warning | same posture as `approval-spender-risk`, for the protocol |
+| `lending-health-factor-consistency` | warning | on a borrow/withdraw, the declared resulting health factor is **not lower** than the prior one (contradictory) |
+| `lending-protocol-risk` | critical / warning | same conservative posture as `approval-spender-risk`, for the protocol |
 
 The health-factor floor is compared with exact fixed-point arithmetic (scale
 18), truncating excess precision toward zero so a value crafted just under the
 floor (e.g. `1.2499999999999999`) cannot round up past the block; an
 unparseable value is treated as below the floor (block), never above it.
+
+Health-factor figures are **agent-attested**: Rinne checks the agent's declared
+post-action state against the floor and for internal consistency (a borrow must
+lower the factor), which catches both miscalculation and contradictory
+declarations. Independently recomputing the position on-chain is future work —
+until then a borrow/withdraw with no declared `healthFactorAfter` is reviewed,
+never proceeded.
 
 ### Operator policy: allowlists
 
@@ -168,11 +194,16 @@ amount rule (which would fail open on an operator typo).
 
 ### Gate computation (`computeGate` in `guard/rules.ts`)
 
-```text
-any rule fail with severity "critical"   -> block
-else any rule fail with severity "warning" -> review
-else any provider evidence status "error"  -> review
-else                                       -> proceed
+```mermaid
+flowchart TD
+    START["rule results + provider evidence"] --> C{"any critical<br/>rule failed?"}
+    C -->|yes| BLOCK["block"]:::block
+    C -->|no| W{"any warning failed<br/>OR any provider error?"}
+    W -->|yes| REVIEW["review"]:::review
+    W -->|no| PROCEED["proceed"]:::proceed
+    classDef block fill:#fdece9,stroke:#e8442e,color:#181610,stroke-width:2px;
+    classDef review fill:#fff7e6,stroke:#caa23a,color:#181610;
+    classDef proceed fill:#e8eefe,stroke:#1d59f2,color:#181610;
 ```
 
 A critical failure is a hard stop. A warning failure means a human should look
@@ -303,6 +334,20 @@ the same host, supervised by systemd, and fronted by Cloudflare. A live
 instance runs at `https://rinne.timidan.xyz`. See `DEPLOY.md` for the full
 droplet runbook; the `deploy/` directory ships the templates.
 
+```mermaid
+flowchart LR
+    AGENT["DeFi agents"] --> CF
+    USERS["Dashboard users"] --> CF
+    CF["Cloudflare<br/>TLS · hides origin IP · WAF"]:::edge --> NGINX["nginx<br/>TLS · security headers · body cap"]:::edge
+    NGINX --> NODE["Rinne — Node<br/>127.0.0.1:4517<br/>/v1 · /api · /skill.md · /app"]:::app
+    NODE --> SURF[("Surf")]:::ext
+    NODE --> NANSEN[("Nansen")]:::ext
+    NODE --> STORE[("file store<br/>agents · decisions")]:::ext
+    classDef edge fill:#f5f3ec,stroke:#5d5a4f,color:#181610;
+    classDef app fill:#e8eefe,stroke:#1d59f2,color:#181610,stroke-width:2px;
+    classDef ext fill:#ffffff,stroke:#5d5a4f,color:#181610;
+```
+
 - **systemd** (`deploy/rinne.service`): runs
   `node dist/src/cli/index.js serve` as a dedicated `rinne` user, with an
   `EnvironmentFile` at `/etc/rinne.env`. The unit is hardened — `ProtectSystem=strict`,
@@ -313,14 +358,24 @@ droplet runbook; the `deploy/` directory ships the templates.
   forwards `X-Forwarded-Proto` so the served skill emits `https://` URLs and
   same-origin CORS keeps working.
 
-## On-chain anchoring (not wired)
+## On-chain anchoring (Mantle Sepolia)
 
 `GuardDecision` carries an optional `onchain` field
-(`{ chainId, txHash?, registryAddress? }`) in `core/guard-types.ts`. It is a
-**type-level hook only**: `runGuard` never populates it, and nothing anchors a
-decision on-chain today. The `rinne-contracts/` Foundry/Solidity package exists
-in the repo, but decisions are **not** anchored on Mantle. Do not describe
-decisions as on-chain.
+(`{ chainId, txHash?, registryAddress? }`) in `core/guard-types.ts`. The
+anchoring contract, `RinneAgentRegistry`, is **deployed and verifiable** on
+Mantle Sepolia at
+[`0xD6C9Bc635CaB482717B3aABB8842e2D1E762a05b`](https://sepolia.mantlescan.xyz/address/0xD6C9Bc635CaB482717B3aABB8842e2D1E762a05b)
+(`rinne-contracts/`, deployment record in
+`rinne-contracts/deployments/mantle-sepolia.json`). It is **event-only**:
+`anchorGuardDecision` emits a `GuardDecisionAnchored` event carrying only a
+decision hash, an agent id, the gate, and an opaque report URI — never endpoint
+URLs, API keys, or raw action data.
+
+What is **not** wired yet: `runGuard` does not populate `onchain` per decision —
+the guard does not send an anchoring transaction on the request hot path. That
+is deliberate. Anchoring must be asynchronous and best-effort so the chain's
+latency or uptime can never affect, or delay, a guard answer; the contract and
+the type hook are ready for that async emit, which is the next step.
 
 ## Module map
 
