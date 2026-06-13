@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Rinne logo redesign 02 - twin trace</title>
+  <desc id="desc">Two replay traces share one path before the perturbed branch separates into a verdict dot.</desc>
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="42%" r="74%">
+      <stop offset="0" stop-color="#172b22" />
+      <stop offset="1" stop-color="#0c1813" />
+    </radialGradient>
+    <linearGradient id="moss" x1="96" x2="420" y1="122" y2="374" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#d4ef74" />
+      <stop offset="0.6" stop-color="#a8ca68" />
+      <stop offset="1" stop-color="#789a55" />
+    </linearGradient>
+    <linearGradient id="risk" x1="334" x2="426" y1="256" y2="360" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ff7046" />
+      <stop offset="1" stop-color="#ee3d31" />
+    </linearGradient>
+  </defs>
+  <rect x="30" y="30" width="452" height="452" rx="92" fill="url(#bg)" />
+  <rect x="30.5" y="30.5" width="451" height="451" rx="91.5" fill="none" stroke="#263f34" />
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path
+      d="M 117 330 C 160 389 258 406 335 367 C 412 328 428 221 361 160 C 300 104 199 109 143 170"
+      stroke="url(#moss)"
+      stroke-width="31"
+    />
+    <path
+      d="M 124 248 C 168 248 176 214 204 214 C 232 214 238 268 270 268 C 302 268 312 198 343 198 C 371 198 385 230 385 258"
+      stroke="url(#moss)"
+      stroke-width="22"
+    />
+    <path d="M 385 258 C 405 258 417 279 409 300 C 402 320 411 337 429 346" stroke="url(#risk)" stroke-width="22" />
+  </g>
+  <circle cx="429" cy="346" r="23" fill="#ef3f2f" />
+  <circle cx="429" cy="346" r="9" fill="#eff4e8" />
+</svg>

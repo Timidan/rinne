@@ -1,0 +1,22 @@
+{
+  "_comment": "Operator policy, NOT provider evidence. These are well-known Mantle mainnet contracts an agent is expected to interact with; an allowlisted spender or protocol passes the identity check without a Nansen round-trip, while an UNKNOWN one does not by itself gate a decision (see the 'minimize reviews' rule posture). Addresses were verified against each protocol's official docs/GitHub; replace or extend via the RINNE_GUARD_CONFIG env path. Risk still comes from rule math (unlimited approval, low health factor) and explicit high-risk Nansen labels, never from absence here.",
+  "spenders": {
+    "mantle": [
+      { "address": "0x319B69888b0d11cEC22caA5034e25FfFBDc88421", "name": "Agni Finance SwapRouter", "source": "https://github.com/agni-protocol/agni-sdk" },
+      { "address": "0xeaEE7EE68874218c3558b40063c42B82D3E7232a", "name": "Merchant Moe MoeRouter", "source": "https://docs.merchantmoe.com/resources/contracts" },
+      { "address": "0x013e138EF6008ae5FDFDE29700e3f2Bc61d21E3a", "name": "Merchant Moe LB Router", "source": "https://docs.merchantmoe.com/resources/contracts" },
+      { "address": "0xCFa5aE7c2CE8Fadc6426C1ff872cA45378Fb7cF3", "name": "Lendle LendingPool", "source": "https://docs.lendle.xyz/contracts-and-security/mantle-contracts" },
+      { "address": "0x972BcB0284cca0152527c4f70f8F689852bCAFc5", "name": "INIT Capital InitCore", "source": "https://dev.init.capital/contract-addresses/mantle" }
+    ]
+  },
+  "protocols": {
+    "mantle": [
+      { "address": "0xCFa5aE7c2CE8Fadc6426C1ff872cA45378Fb7cF3", "name": "Lendle", "source": "https://docs.lendle.xyz/contracts-and-security/mantle-contracts" },
+      { "address": "0x972BcB0284cca0152527c4f70f8F689852bCAFc5", "name": "INIT Capital", "source": "https://dev.init.capital/contract-addresses/mantle" }
+    ]
+  },
+  "approvalAmountThreshold": {
+    "default": "1000000",
+    "perToken": {}
+  }
+}

@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Rinne logo symbol</title>
+  <desc id="desc">A replay loop with a signal trace diverging into a verdict dot.</desc>
+  <defs>
+    <linearGradient id="moss" x1="104" x2="408" y1="142" y2="382" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#1d59f2" />
+      <stop offset="0.56" stop-color="#1d59f2" />
+      <stop offset="1" stop-color="#1d59f2" />
+    </linearGradient>
+    <linearGradient id="risk" x1="372" x2="470" y1="294" y2="362" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#e8442e" />
+      <stop offset="1" stop-color="#e8442e" />
+    </linearGradient>
+  </defs>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path
+      d="M 370 151 A 154 154 0 1 0 370 361"
+      stroke="url(#moss)"
+      stroke-width="28"
+    />
+    <path
+      d="M 104 262 H 164 C 176 262 183 255 190 244 C 200 229 213 229 221 244 L 234 271 C 244 292 263 290 268 268 L 292 172 C 298 148 326 149 331 174 L 356 313 C 360 334 382 336 392 318 L 403 298 C 411 284 426 278 440 283"
+      stroke="url(#moss)"
+      stroke-width="24"
+    />
+    <path
+      d="M 392 318 C 408 292 436 296 443 321 C 449 341 461 348 459 348"
+      stroke="url(#risk)"
+      stroke-width="24"
+    />
+  </g>
+  <circle cx="459" cy="348" r="25" fill="#e8442e" />
+  <circle cx="459" cy="348" r="11" fill="#fffdf8" />
+</svg>

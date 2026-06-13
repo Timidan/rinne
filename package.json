@@ -1,0 +1,14 @@
+{
+  "name": "rinne-workspace",
+  "private": true,
+  "description": "Rinne — a hosted pre-execution safety guard for autonomous DeFi agents on Mantle. Agents ask before they act and get a proceed / block / review decision backed by deterministic rules and live Surf + Nansen evidence.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "rinne:doctor": "pnpm --filter rinne run doctor",
+    "rinne:app": "pnpm --filter rinne-web build && pnpm --filter rinne run serve",
+    "test": "pnpm --filter rinne test"
+  }
+}

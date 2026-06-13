@@ -1,0 +1,37 @@
+# Rinne DeFi agent guard — systemd unit.
+# Install: sudo cp deploy/rinne.service /etc/systemd/system/rinne.service
+#          sudo systemctl daemon-reload && sudo systemctl enable --now rinne
+# Assumes the repo is cloned at /opt/rinne and built (see DEPLOY.md), and a
+# dedicated `rinne` system user owns /opt/rinne/rinne/artifacts.
+
+[Unit]
+Description=Rinne DeFi agent guard
+Documentation=https://github.com/Timidan/rinne
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=rinne
+Group=rinne
+WorkingDirectory=/opt/rinne/rinne
+EnvironmentFile=/etc/rinne.env
+# Adjust the node path to `which node` on your box (nodesource installs to
+# /usr/bin/node; nvm installs under the user's home).
+ExecStart=/usr/bin/node /opt/rinne/rinne/dist/src/cli/index.js serve
+Restart=always
+RestartSec=3
+
+# --- Hardening: the code tree is read-only; only the file store is writable. --
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/opt/rinne/rinne/artifacts
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=rinne
+
+[Install]
+WantedBy=multi-user.target

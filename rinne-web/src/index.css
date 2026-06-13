@@ -1,0 +1,396 @@
+@import "tailwindcss";
+
+@theme {
+  /* Rinne "Signal" system (DESIGN.md). Warm cream paper, flat ink, one
+     committed blue; red is reserved for corrupted data and the caught verdict. */
+  --color-bg: #fffdf8;
+  --color-card: rgba(255, 255, 255, 0.88);
+  --color-ink: #181610;
+  --color-ink-dim: #5d5a4f;
+  --color-line: #e8e4d8;
+  --color-blue: #1d59f2;
+  --color-blue-press: #1747c8; /* hover/press shade for blue pills */
+  --color-blue-deep: #122a75;
+  --color-blue-pale: #e8eefe;
+  --color-blue-mist: #b9c6ee; /* secondary text on the blue-deep dark block */
+  --color-red: #e8442e;
+  --color-red-deep: #a32014;
+  --color-amber: #b25e06;
+  --color-steel: #6d7480;
+
+  --font-display: "Bricolage Grotesque Variable", system-ui, sans-serif;
+  --font-sans: "Bricolage Grotesque Variable", system-ui, sans-serif;
+  --font-mono: "Spline Sans Mono Variable", ui-monospace, monospace;
+
+  --ease-instrument: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* class-based dark variant: <html class="dark"> switches the whole app */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Night ink: the same committed-blue system on deep ink-navy paper. The
+   blue-deep block and the logo tiles keep their own constant colors, so
+   only the paper, ink, and chips flip. */
+.dark {
+  --color-bg: #10131a;
+  --color-card: rgba(23, 27, 37, 0.88);
+  --color-ink: #f1eee3;
+  --color-ink-dim: #a8a596;
+  --color-line: #2b2f3b;
+  --color-blue: #4d7df2;
+  --color-blue-press: #3a64cf;
+  --color-blue-deep: #aac1ff;
+  --color-blue-pale: rgba(77, 125, 242, 0.16);
+  --color-red: #ff5a43;
+  --color-red-deep: #ffb3a8;
+  --color-amber: #e09a3a;
+  --color-steel: #8d95a3;
+  color-scheme: dark;
+}
+
+html {
+  background-color: var(--color-bg);
+  color: var(--color-ink);
+  color-scheme: light;
+  /* live cards swap keyed spans in place; without this, Chrome's scroll
+     anchoring can lose its anchor node mid-toggle and jump to the top */
+  overflow-anchor: none;
+}
+
+body {
+  font-family: var(--font-sans);
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+::selection {
+  background: var(--color-blue-pale);
+  color: var(--color-blue-deep);
+}
+
+/* ════ THE FIELD: real blue ink blooming behind every page ═══════
+   Footage: Pexels #3024109 (Dan Cristian Pădureț), self-hosted in
+   /media, washed back to cream. Graph-paper rules sit on top of the
+   wash so the footage and the interface share one surface. */
+.field {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.bgvid {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(0.85);
+}
+.wash {
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, var(--color-bg) 76%, transparent);
+  background-image:
+    linear-gradient(
+      to right,
+      color-mix(in srgb, var(--color-ink) 5%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--color-ink) 5%, transparent) 1px,
+      transparent 1px
+    );
+  background-size: 56px 56px;
+}
+/* product pages keep the same liquid, but calmer */
+.wash-calm {
+  background-color: color-mix(in srgb, var(--color-bg) 88%, transparent);
+}
+/* at night the ink footage glows less and the wash carries more weight */
+.dark .bgvid {
+  filter: saturate(0.7) brightness(0.45);
+}
+.dark .corrupt-sweep {
+  mix-blend-mode: screen;
+}
+
+/* content sits above the field; layered so utilities like
+   `sticky`/`z-40` still override these defaults */
+@layer base {
+  nav,
+  main,
+  header,
+  footer {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+/* ── The rebirth dial: dashed loops turning behind hero moments ── */
+.dial circle {
+  fill: none;
+  stroke: var(--color-blue);
+  stroke-linecap: round;
+}
+.dial .c1 { stroke-dasharray: 4 26; stroke-width: 3; opacity: 0.22; }
+.dial .c2 { stroke-dasharray: 2 14; stroke-width: 2; opacity: 0.14; }
+.dial .spin-a { transform-origin: 360px 360px; animation: dial-spin 130s linear infinite; }
+.dial .spin-b { transform-origin: 360px 360px; animation: dial-spin 90s linear infinite reverse; }
+@keyframes dial-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── The story-thread: marching dashes through the beat cards ──── */
+.thread path {
+  fill: none;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-dasharray: 10 9;
+  animation: thread-march 1.4s linear infinite;
+}
+.thread .t-ink { stroke: var(--color-ink); opacity: 0.5; }
+/* the red half only exists while the corruption is injected (.is-corrupt) */
+.thread .t-red {
+  stroke: var(--color-red);
+  opacity: 0;
+  transition: opacity 0.45s ease;
+}
+.is-corrupt .thread .t-red { opacity: 0.75; }
+@keyframes thread-march {
+  to { stroke-dashoffset: -19; }
+}
+
+/* ── Event-driven propagation: nothing below plays on its own. When
+      the user injects or removes the corruption, .pulse-once lands on the strip for one
+      pass and the change travels downstream: sweep through Corrupt,
+      trace along the thread, Replay pings, Verdict punches. ────────── */
+
+/* The rail trace: a flat runner; blue in the honest world, red once
+   the corruption is in. Visible only while a propagation pass runs. */
+.thread .t-trace {
+  fill: var(--color-blue);
+  opacity: 0;
+  transition: fill 0.45s ease;
+}
+.is-corrupt .thread .t-trace { fill: var(--color-red); }
+.pulse-once .thread .t-trace {
+  animation: trace-once 0.9s linear 1;
+}
+@keyframes trace-once {
+  0% { x: 470px; opacity: 0.9; }
+  80% { opacity: 0.9; }
+  100% { x: 1030px; opacity: 0; }
+}
+
+/* The corrupt sweep: one scanline pass through the Corrupt card the
+   moment it is pressed. */
+.corrupt-sweep {
+  position: absolute;
+  inset: -30% -75%;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+  opacity: 0;
+  transform: translateX(-60%);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(232, 68, 46, 0.07) 36%,
+    rgba(232, 68, 46, 0.18) 50%,
+    rgba(232, 68, 46, 0.07) 64%,
+    transparent 100%
+  );
+}
+.pulse-once .corrupt-sweep {
+  animation: corrupt-pass 0.8s var(--ease-instrument) 1;
+}
+@keyframes corrupt-pass {
+  0% { transform: translateX(-60%); opacity: 0; }
+  15% { opacity: 1; }
+  100% { transform: translateX(60%); opacity: 0; }
+}
+
+/* downstream cards acknowledge the new world, in order */
+.pulse-once .wake-3 {
+  animation: replay-wake 0.5s var(--ease-instrument) 1;
+  animation-delay: 0.05s;
+}
+.pulse-once .wake-4 {
+  animation: replay-wake 0.55s var(--ease-instrument) 1;
+  animation-delay: 0.15s;
+}
+@keyframes replay-wake {
+  0%, 100% {
+    transform: translateY(0);
+    box-shadow: 4px 4px 0 var(--color-ink);
+    border-color: var(--color-ink);
+  }
+  40% {
+    transform: translateY(-7px);
+    box-shadow: 7px 10px 0 var(--color-ink);
+    border-color: var(--color-blue);
+  }
+}
+.pulse-once .wake-5 {
+  animation: verdict-wake 0.6s var(--ease-instrument) 1;
+  animation-delay: 0.3s;
+}
+@keyframes verdict-wake {
+  0%, 100% {
+    transform: translateY(0) rotate(0) scale(1);
+    box-shadow: 4px 4px 0 var(--color-blue-deep);
+  }
+  35% {
+    transform: translateY(-6px) rotate(-1.2deg) scale(1.04);
+    box-shadow: 8px 11px 0 var(--color-blue-deep);
+  }
+  70% {
+    transform: translateY(-1px) rotate(0.3deg) scale(1.005);
+    box-shadow: 5px 6px 0 var(--color-blue-deep);
+  }
+}
+
+/* ── The corruption chip: the perturbation as a physical object the
+      user can drop into the recorded data or pull back out. ────────── */
+.corrupt-chip {
+  position: absolute;
+  z-index: 30;
+  width: 108px;
+  height: 46px;
+  border-radius: 12px;
+  background: var(--color-bg);
+  border: 2px solid var(--color-red);
+  color: var(--color-red);
+  box-shadow: 3px 3px 0 var(--color-red);
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  touch-action: none;
+  transform: rotate(-2.5deg);
+  padding: 0;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.corrupt-chip:active { cursor: grabbing; }
+.corrupt-chip:focus-visible { outline: 3px solid var(--color-blue); outline-offset: 3px; }
+.corrupt-chip.flying { cursor: grabbing; transform: rotate(3deg) scale(1.06); transition: none; }
+.corrupt-chip.homing { transition: left 0.35s var(--ease-instrument), top 0.35s var(--ease-instrument), transform 0.35s var(--ease-instrument), width 0.35s var(--ease-instrument), height 0.35s var(--ease-instrument); }
+.corrupt-chip.docked {
+  background: var(--color-red);
+  color: #fff;
+  box-shadow: 2px 2px 0 var(--color-blue-deep);
+  transform: rotate(0);
+  width: 86px;
+  height: 30px;
+  font-size: 13px;
+  border-radius: 8px;
+}
+.chip-home {
+  width: 108px;
+  height: 46px;
+  border-radius: 12px;
+  border: 2px dashed color-mix(in srgb, var(--color-red) 40%, transparent);
+}
+.data-slot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 86px;
+  height: 26px;
+  border: 1.5px dashed color-mix(in srgb, var(--color-red) 45%, transparent);
+  border-radius: 7px;
+  font-size: 10.5px;
+  color: color-mix(in srgb, var(--color-red) 70%, transparent);
+  vertical-align: middle;
+  padding: 0 6px;
+}
+.drop-hot {
+  border-color: var(--color-red) !important;
+  box-shadow: 4px 4px 0 var(--color-red) !important;
+}
+.drop-hot::after {
+  content: "drop the corruption here";
+  position: absolute;
+  inset: auto 10px 8px;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-red);
+}
+@media (prefers-reduced-motion: reduce) {
+  .corrupt-chip.homing { transition: none; }
+}
+
+/* hide the mobile track's scrollbar; the thread implies the overflow */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── The strike: red line drawn through the bad data ─────────────────── */
+.strike {
+  position: relative;
+  display: inline-block;
+  color: var(--color-red);
+}
+.strike::after {
+  content: "";
+  position: absolute;
+  left: -2%;
+  right: -2%;
+  top: 54%;
+  height: 0.06em;
+  background: var(--color-red);
+  border-radius: 99px;
+  transform: rotate(-2deg) scaleX(0);
+  transform-origin: left center;
+  animation: strike-draw 0.5s var(--ease-instrument) 1.1s forwards;
+}
+@keyframes strike-draw {
+  to { transform: rotate(-2deg) scaleX(1); }
+}
+
+/* ── The hover-tilt: receipts float, slightly askew ─────────────── */
+.tilt {
+  transform: rotate(1.5deg);
+  animation: hover-tilt 7s ease-in-out infinite alternate;
+}
+@keyframes hover-tilt {
+  from { transform: rotate(1.5deg) translateY(0); }
+  to { transform: rotate(2.2deg) translateY(-8px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dial .spin-a,
+  .dial .spin-b,
+  .thread path,
+  .tilt,
+  .pulse-once .corrupt-sweep,
+  .pulse-once .thread .t-trace,
+  .pulse-once .wake-4,
+  .pulse-once .wake-5 {
+    animation: none !important;
+  }
+  .strike::after {
+    animation: none !important;
+    transform: rotate(-2deg) scaleX(1);
+  }
+}

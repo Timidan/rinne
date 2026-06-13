@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 220" role="img" aria-labelledby="title desc">
+  <title id="title">Rinne logo</title>
+  <desc id="desc">Rinne wordmark paired with a replay loop and diverging verdict trace.</desc>
+  <defs>
+    <linearGradient id="moss" x1="32" x2="168" y1="38" y2="174" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#1d59f2" />
+      <stop offset="0.56" stop-color="#1d59f2" />
+      <stop offset="1" stop-color="#1d59f2" />
+    </linearGradient>
+    <linearGradient id="risk" x1="153" x2="190" y1="127" y2="154" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#e8442e" />
+      <stop offset="1" stop-color="#e8442e" />
+    </linearGradient>
+  </defs>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path
+      d="M 151 65 A 64 64 0 1 0 151 155"
+      stroke="url(#moss)"
+      stroke-width="13"
+    />
+    <path
+      d="M 41 114 H 67 C 73 114 76 111 79 106 C 83 100 89 100 93 106 L 99 118 C 103 127 111 126 114 116 L 124 75 C 127 65 139 65 142 76 L 152 136 C 154 145 163 146 168 138 L 173 129 C 176 123 182 121 188 123"
+      stroke="url(#moss)"
+      stroke-width="11"
+    />
+    <path
+      d="M 168 138 C 176 125 188 127 191 139 C 194 148 199 151 199 151"
+      stroke="url(#risk)"
+      stroke-width="11"
+    />
+  </g>
+  <circle cx="199" cy="151" r="12" fill="#e8442e" />
+  <circle cx="199" cy="151" r="5" fill="#fffdf8" />
+  <text
+    x="250"
+    y="137"
+    fill="#181610"
+    font-family="'Bricolage Grotesque Variable', 'Bricolage Grotesque', Archivo, system-ui, sans-serif"
+    font-size="88"
+    font-weight="800"
+    letter-spacing="0"
+  >Rinne</text>
+</svg>

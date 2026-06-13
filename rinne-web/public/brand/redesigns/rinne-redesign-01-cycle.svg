@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Rinne logo redesign 01 - cycle trace</title>
+  <desc id="desc">A clean replay cycle with a signal trace diverging into a verdict dot.</desc>
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="42%" r="72%">
+      <stop offset="0" stop-color="#172b22" />
+      <stop offset="1" stop-color="#0c1813" />
+    </radialGradient>
+    <linearGradient id="moss" x1="118" x2="394" y1="126" y2="374" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#d4ef74" />
+      <stop offset="0.58" stop-color="#a8ca68" />
+      <stop offset="1" stop-color="#789a55" />
+    </linearGradient>
+    <linearGradient id="risk" x1="350" x2="424" y1="282" y2="356" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ff7046" />
+      <stop offset="1" stop-color="#ee3d31" />
+    </linearGradient>
+  </defs>
+  <rect x="30" y="30" width="452" height="452" rx="92" fill="url(#bg)" />
+  <rect x="30.5" y="30.5" width="451" height="451" rx="91.5" fill="none" stroke="#263f34" />
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M 361 139 A 146 146 0 1 0 361 373" stroke="url(#moss)" stroke-width="30" />
+    <path
+      d="M 121 260 H 164 C 178 260 184 251 191 239 C 201 222 217 222 226 240 L 238 266 C 248 287 267 286 272 263 L 296 166 C 302 141 330 141 335 167 L 359 303 C 363 326 385 326 395 306 L 403 291"
+      stroke="url(#moss)"
+      stroke-width="23"
+    />
+    <path d="M 395 306 C 415 289 432 302 432 328" stroke="url(#risk)" stroke-width="23" />
+  </g>
+  <circle cx="432" cy="328" r="24" fill="#ef3f2f" />
+  <circle cx="432" cy="328" r="9" fill="#eff4e8" />
+</svg>

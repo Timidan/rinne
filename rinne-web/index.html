@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#fffdf8" />
+    <script>
+      // Apply the saved theme before first paint so dark mode never flashes.
+      (function () {
+        try {
+          var saved = localStorage.getItem("rinne-theme");
+          var dark =
+            saved === "dark" ||
+            (!saved && matchMedia("(prefers-color-scheme: dark)").matches);
+          if (dark) {
+            document.documentElement.classList.add("dark");
+            var meta = document.querySelector('meta[name="theme-color"]');
+            if (meta) meta.setAttribute("content", "#10131a");
+          }
+        } catch (_) {}
+      })();
+    </script>
+    <link rel="icon" type="image/svg+xml" href="/brand/rinne-logo-app-icon-v2.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/brand/rinne-logo-mark-v2-32.png" />
+    <link rel="apple-touch-icon" href="/brand/rinne-logo-mark-v2-256.png" />
+    <title>Rinne — adversarial replay harness for Mantle AI agents</title>
+    <meta
+      name="description"
+      content="Rinne stress-tests Mantle AI agents by replaying their decisions against corrupted Surf Signals and pinned fork state before they touch mainnet."
+    />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

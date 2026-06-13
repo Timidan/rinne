@@ -1,0 +1,12 @@
+{
+  "network": "mantle-sepolia",
+  "chainId": 5003,
+  "contracts": {
+    "RinneAgentRegistry": {
+      "address": "0xD6C9Bc635CaB482717B3aABB8842e2D1E762a05b",
+      "deployTx": "0x68774b8b9266f39b013fe81be27a76242c8290b70b0adea907463276b7ec3d2b",
+      "explorer": "https://sepolia.mantlescan.xyz/address/0xD6C9Bc635CaB482717B3aABB8842e2D1E762a05b",
+      "note": "Event-only anchoring registry. Only hashes + an opaque report URI are emitted on-chain; no endpoint URLs, API keys, or raw action data. The guard runs fully without it; per-decision anchoring (GuardDecision.onchain) is not yet wired into the hot path by design."
+    }
+  }
+}

@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Rinne logo redesign 04 - replay knot</title>
+  <desc id="desc">A continuous replay knot shows a decision reborn, with a short perturbed branch ending in a verdict.</desc>
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="42%" r="74%">
+      <stop offset="0" stop-color="#172b22" />
+      <stop offset="1" stop-color="#0c1813" />
+    </radialGradient>
+    <linearGradient id="moss" x1="102" x2="409" y1="139" y2="365" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#d4ef74" />
+      <stop offset="0.6" stop-color="#a8ca68" />
+      <stop offset="1" stop-color="#789a55" />
+    </linearGradient>
+    <linearGradient id="risk" x1="337" x2="425" y1="264" y2="352" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ff7046" />
+      <stop offset="1" stop-color="#ee3d31" />
+    </linearGradient>
+  </defs>
+  <rect x="30" y="30" width="452" height="452" rx="92" fill="url(#bg)" />
+  <rect x="30.5" y="30.5" width="451" height="451" rx="91.5" fill="none" stroke="#263f34" />
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path
+      d="M 123 256 C 123 188 183 153 243 190 C 278 212 295 300 338 326 C 381 352 420 323 415 279 C 410 231 360 215 323 248 C 287 281 271 357 214 357 C 164 357 123 316 123 256"
+      stroke="url(#moss)"
+      stroke-width="30"
+    />
+    <path d="M 338 326 C 364 336 386 343 409 343" stroke="url(#risk)" stroke-width="24" />
+  </g>
+  <circle cx="409" cy="343" r="24" fill="#ef3f2f" />
+  <circle cx="409" cy="343" r="9" fill="#eff4e8" />
+</svg>

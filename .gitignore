@@ -1,0 +1,20 @@
+# Build output
+node_modules/
+rinne/dist/
+rinne-web/dist/
+rinne-contracts/out/
+rinne-contracts/cache/
+
+# Guard runtime data — registered agents (API-key HASHES) + decision history.
+# Created at runtime by `rinne serve`; never commit it.
+rinne/artifacts/
+
+# Local tooling + internal working artifacts (not part of the product)
+.codegraph/
+docs/superpowers/
+
+# Secrets — only the deploy/rinne.env.example template is tracked
+.env
+.env.local
+*.env
+!*.env.example

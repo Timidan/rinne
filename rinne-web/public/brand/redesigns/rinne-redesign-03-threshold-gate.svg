@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Rinne logo redesign 03 - threshold gate</title>
+  <desc id="desc">A replay lane crosses a threshold gate and turns into a caught verdict mark.</desc>
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="42%" r="74%">
+      <stop offset="0" stop-color="#172b22" />
+      <stop offset="1" stop-color="#0c1813" />
+    </radialGradient>
+    <linearGradient id="moss" x1="101" x2="397" y1="149" y2="363" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#d4ef74" />
+      <stop offset="0.6" stop-color="#a8ca68" />
+      <stop offset="1" stop-color="#789a55" />
+    </linearGradient>
+    <linearGradient id="risk" x1="347" x2="424" y1="254" y2="350" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ff7046" />
+      <stop offset="1" stop-color="#ee3d31" />
+    </linearGradient>
+  </defs>
+  <rect x="30" y="30" width="452" height="452" rx="92" fill="url(#bg)" />
+  <rect x="30.5" y="30.5" width="451" height="451" rx="91.5" fill="none" stroke="#263f34" />
+  <path d="M 121 306 H 392" fill="none" stroke="#eff4e8" stroke-width="6" stroke-linecap="round" opacity="0.28" />
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path
+      d="M 126 184 H 299 C 356 184 395 222 395 274 C 395 327 355 362 298 362 H 126"
+      stroke="url(#moss)"
+      stroke-width="32"
+    />
+    <path
+      d="M 126 263 H 202 C 222 263 228 238 246 238 C 264 238 271 301 294 301 C 315 301 323 263 345 263 H 365"
+      stroke="url(#moss)"
+      stroke-width="22"
+    />
+    <path d="M 365 263 C 394 263 410 285 407 313 C 405 329 414 342 431 348" stroke="url(#risk)" stroke-width="22" />
+  </g>
+  <circle cx="431" cy="348" r="23" fill="#ef3f2f" />
+  <circle cx="431" cy="348" r="9" fill="#eff4e8" />
+</svg>
