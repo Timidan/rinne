@@ -1,0 +1,59 @@
+name: Deploy
+
+# Auto-deploy to the droplet on every push to the default branch.
+#
+# DORMANT until you add two repository secrets (Settings → Secrets and variables
+# → Actions):
+#   DROPLET_HOST  the droplet IP (kept out of the repo so the origin stays hidden)
+#   DEPLOY_KEY    the PRIVATE half of an SSH key whose public half is in the
+#                 droplet's ~/.ssh/authorized_keys
+# Without those it runs as a green no-op. You can also trigger it manually from
+# the Actions tab (workflow_dispatch).
+
+on:
+  push:
+    branches: [master, main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Skip if deploy secrets are not configured
+        id: gate
+        run: |
+          if [ -z "${{ secrets.DROPLET_HOST }}" ] || [ -z "${{ secrets.DEPLOY_KEY }}" ]; then
+            echo "Deploy secrets not set; skipping deploy."
+            echo "go=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "go=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Set up SSH
+        if: steps.gate.outputs.go == 'true'
+        run: |
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          printf '%s\n' "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H "${{ secrets.DROPLET_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Sync source to droplet
+        if: steps.gate.outputs.go == 'true'
+        run: |
+          rsync -az --delete \
+            --exclude node_modules --exclude dist --exclude .git \
+            --exclude 'rinne/artifacts/store' \
+            -e "ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes" \
+            ./ root@${{ secrets.DROPLET_HOST }}:/opt/rinne/
+
+      - name: Build + restart on droplet
+        if: steps.gate.outputs.go == 'true'
+        run: |
+          ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes root@${{ secrets.DROPLET_HOST }} \
+            'bash -lc "cd /opt/rinne && pnpm install --frozen-lockfile && pnpm --filter rinne-web build && pnpm --filter rinne build && systemctl restart rinne && sleep 2 && systemctl is-active rinne"'

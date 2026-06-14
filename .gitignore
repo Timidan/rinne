@@ -18,3 +18,6 @@ docs/superpowers/
 .env.local
 *.env
 !*.env.example
+
+# Local deploy target (keeps the origin IP out of the repo)
+deploy/.env
