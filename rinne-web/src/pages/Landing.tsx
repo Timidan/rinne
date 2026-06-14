@@ -4,6 +4,7 @@ import { motion, useReducedMotion, useScroll, useTransform } from "motion/react"
 import BrandMark from "../components/BrandMark";
 import ThemeToggle from "../components/ThemeToggle";
 import InkField from "../components/InkField";
+import LiveGuardDemo from "../components/LiveGuardDemo";
 
 const WRAP = "mx-auto max-w-[1160px] px-7";
 const PILL_BLUE =
@@ -56,7 +57,7 @@ const STEPS: { tag: string; name: string; body: string; code: string }[] = [
   },
   {
     tag: "STEP 3",
-    name: "Act on the verdict",
+    name: "Act on the gate",
     body: "proceed → execute it. block → don't. review → a human looks first. Every decision is recorded with the evidence behind it.",
     code: "→ proceed · block · review",
   },
@@ -199,6 +200,9 @@ export default function Landing() {
           </div>
         </section>
 
+        {/* See it decide — interactive proof of the guard */}
+        <LiveGuardDemo />
+
         {/* How the guard works — three moves, not the old replay flow */}
         <section id="how" className="pb-[96px]" aria-label="How the guard works">
           <div className={WRAP}>
@@ -250,7 +254,7 @@ export default function Landing() {
               <div className="mx-auto mt-6 flex max-w-[760px] flex-wrap items-center justify-center gap-x-3 gap-y-2 font-mono text-xs text-ink-dim">
                 <span className="rounded-full border border-line px-3 py-1">Mantle mainnet · 5000</span>
                 <span className="rounded-full border border-line px-3 py-1">Mantle Sepolia testnet · 5003</span>
-                <span className="rounded-full border border-line px-3 py-1">verdicts: proceed · block · review</span>
+                <span className="rounded-full border border-line px-3 py-1">gates: proceed · block · review</span>
               </div>
               <p className="mx-auto mt-6 max-w-[64ch] text-center text-[13px] leading-relaxed text-ink-dim">
                 Rinne <strong className="font-semibold text-ink">decides, it never executes</strong> — your

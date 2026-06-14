@@ -123,9 +123,6 @@ p {
 .dark .bgvid {
   filter: saturate(0.7) brightness(0.45);
 }
-.dark .corrupt-sweep {
-  mix-blend-mode: screen;
-}
 
 /* content sits above the field; layered so utilities like
    `sticky`/`z-40` still override these defaults */
@@ -151,190 +148,6 @@ p {
 .dial .spin-b { transform-origin: 360px 360px; animation: dial-spin 90s linear infinite reverse; }
 @keyframes dial-spin {
   to { transform: rotate(360deg); }
-}
-
-/* ── The story-thread: marching dashes through the beat cards ──── */
-.thread path {
-  fill: none;
-  stroke-width: 2.5;
-  stroke-linecap: round;
-  stroke-dasharray: 10 9;
-  animation: thread-march 1.4s linear infinite;
-}
-.thread .t-ink { stroke: var(--color-ink); opacity: 0.5; }
-/* the red half only exists while the corruption is injected (.is-corrupt) */
-.thread .t-red {
-  stroke: var(--color-red);
-  opacity: 0;
-  transition: opacity 0.45s ease;
-}
-.is-corrupt .thread .t-red { opacity: 0.75; }
-@keyframes thread-march {
-  to { stroke-dashoffset: -19; }
-}
-
-/* ── Event-driven propagation: nothing below plays on its own. When
-      the user injects or removes the corruption, .pulse-once lands on the strip for one
-      pass and the change travels downstream: sweep through Corrupt,
-      trace along the thread, Replay pings, Verdict punches. ────────── */
-
-/* The rail trace: a flat runner; blue in the honest world, red once
-   the corruption is in. Visible only while a propagation pass runs. */
-.thread .t-trace {
-  fill: var(--color-blue);
-  opacity: 0;
-  transition: fill 0.45s ease;
-}
-.is-corrupt .thread .t-trace { fill: var(--color-red); }
-.pulse-once .thread .t-trace {
-  animation: trace-once 0.9s linear 1;
-}
-@keyframes trace-once {
-  0% { x: 470px; opacity: 0.9; }
-  80% { opacity: 0.9; }
-  100% { x: 1030px; opacity: 0; }
-}
-
-/* The corrupt sweep: one scanline pass through the Corrupt card the
-   moment it is pressed. */
-.corrupt-sweep {
-  position: absolute;
-  inset: -30% -75%;
-  pointer-events: none;
-  mix-blend-mode: multiply;
-  opacity: 0;
-  transform: translateX(-60%);
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(232, 68, 46, 0.07) 36%,
-    rgba(232, 68, 46, 0.18) 50%,
-    rgba(232, 68, 46, 0.07) 64%,
-    transparent 100%
-  );
-}
-.pulse-once .corrupt-sweep {
-  animation: corrupt-pass 0.8s var(--ease-instrument) 1;
-}
-@keyframes corrupt-pass {
-  0% { transform: translateX(-60%); opacity: 0; }
-  15% { opacity: 1; }
-  100% { transform: translateX(60%); opacity: 0; }
-}
-
-/* downstream cards acknowledge the new world, in order */
-.pulse-once .wake-3 {
-  animation: replay-wake 0.5s var(--ease-instrument) 1;
-  animation-delay: 0.05s;
-}
-.pulse-once .wake-4 {
-  animation: replay-wake 0.55s var(--ease-instrument) 1;
-  animation-delay: 0.15s;
-}
-@keyframes replay-wake {
-  0%, 100% {
-    transform: translateY(0);
-    box-shadow: 4px 4px 0 var(--color-ink);
-    border-color: var(--color-ink);
-  }
-  40% {
-    transform: translateY(-7px);
-    box-shadow: 7px 10px 0 var(--color-ink);
-    border-color: var(--color-blue);
-  }
-}
-.pulse-once .wake-5 {
-  animation: verdict-wake 0.6s var(--ease-instrument) 1;
-  animation-delay: 0.3s;
-}
-@keyframes verdict-wake {
-  0%, 100% {
-    transform: translateY(0) rotate(0) scale(1);
-    box-shadow: 4px 4px 0 var(--color-blue-deep);
-  }
-  35% {
-    transform: translateY(-6px) rotate(-1.2deg) scale(1.04);
-    box-shadow: 8px 11px 0 var(--color-blue-deep);
-  }
-  70% {
-    transform: translateY(-1px) rotate(0.3deg) scale(1.005);
-    box-shadow: 5px 6px 0 var(--color-blue-deep);
-  }
-}
-
-/* ── The corruption chip: the perturbation as a physical object the
-      user can drop into the recorded data or pull back out. ────────── */
-.corrupt-chip {
-  position: absolute;
-  z-index: 30;
-  width: 108px;
-  height: 46px;
-  border-radius: 12px;
-  background: var(--color-bg);
-  border: 2px solid var(--color-red);
-  color: var(--color-red);
-  box-shadow: 3px 3px 0 var(--color-red);
-  font-family: var(--font-mono);
-  font-weight: 500;
-  font-size: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: grab;
-  touch-action: none;
-  transform: rotate(-2.5deg);
-  padding: 0;
-  user-select: none;
-  -webkit-user-select: none;
-}
-.corrupt-chip:active { cursor: grabbing; }
-.corrupt-chip:focus-visible { outline: 3px solid var(--color-blue); outline-offset: 3px; }
-.corrupt-chip.flying { cursor: grabbing; transform: rotate(3deg) scale(1.06); transition: none; }
-.corrupt-chip.homing { transition: left 0.35s var(--ease-instrument), top 0.35s var(--ease-instrument), transform 0.35s var(--ease-instrument), width 0.35s var(--ease-instrument), height 0.35s var(--ease-instrument); }
-.corrupt-chip.docked {
-  background: var(--color-red);
-  color: #fff;
-  box-shadow: 2px 2px 0 var(--color-blue-deep);
-  transform: rotate(0);
-  width: 86px;
-  height: 30px;
-  font-size: 13px;
-  border-radius: 8px;
-}
-.chip-home {
-  width: 108px;
-  height: 46px;
-  border-radius: 12px;
-  border: 2px dashed color-mix(in srgb, var(--color-red) 40%, transparent);
-}
-.data-slot {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 86px;
-  height: 26px;
-  border: 1.5px dashed color-mix(in srgb, var(--color-red) 45%, transparent);
-  border-radius: 7px;
-  font-size: 10.5px;
-  color: color-mix(in srgb, var(--color-red) 70%, transparent);
-  vertical-align: middle;
-  padding: 0 6px;
-}
-.drop-hot {
-  border-color: var(--color-red) !important;
-  box-shadow: 4px 4px 0 var(--color-red) !important;
-}
-.drop-hot::after {
-  content: "drop the corruption here";
-  position: absolute;
-  inset: auto 10px 8px;
-  text-align: center;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  color: var(--color-red);
-}
-@media (prefers-reduced-motion: reduce) {
-  .corrupt-chip.homing { transition: none; }
 }
 
 /* hide the mobile track's scrollbar; the thread implies the overflow */
@@ -381,12 +194,7 @@ p {
 @media (prefers-reduced-motion: reduce) {
   .dial .spin-a,
   .dial .spin-b,
-  .thread path,
-  .tilt,
-  .pulse-once .corrupt-sweep,
-  .pulse-once .thread .t-trace,
-  .pulse-once .wake-4,
-  .pulse-once .wake-5 {
+  .tilt {
     animation: none !important;
   }
   .strike::after {
