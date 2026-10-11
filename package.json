@@ -10,5 +10,6 @@
     "rinne:doctor": "pnpm --filter rinne run doctor",
     "rinne:app": "pnpm --filter rinne-web build && pnpm --filter rinne run serve",
     "test": "pnpm --filter rinne test"
-  }
+  },
+  "packageManager": "pnpm@9.15.9"
 }
